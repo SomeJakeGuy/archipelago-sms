@@ -113,7 +113,7 @@ class SmsWorld(World):
         for _ in range(0, self.options.corona_mountain_shines.value):
             pool.append(self.create_item("Shine Sprite"))
 
-        extra_shines = math.floor(self.options.corona_mountain_shines * 0.30)
+        extra_shines = math.floor(self.options.corona_mountain_shines.value * 0.30)
         # Adds extra shines to the pool if possible (will not run if no locations are unfilled)
         for i in range(0, len(self.multiworld.get_unfilled_locations(self.player)) - len(pool)):
             if i <= extra_shines:
