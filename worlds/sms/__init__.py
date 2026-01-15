@@ -124,7 +124,6 @@ class SmsWorld(World):
         for i in range(0, len(self.multiworld.get_unfilled_locations(self.player)) - len(pool)):
             if i < extra_shines:
                 pool.append(self.create_item("Shine Sprite"))
-                self.possible_shines += 1
             else:
                 pool.append(self.create_item(self.random.choice(list(JUNK_ITEMS.keys()))))
 
