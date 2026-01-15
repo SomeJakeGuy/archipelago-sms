@@ -116,8 +116,8 @@ def create_region(region: SmsRegion, world: "SmsWorld"):
 
     if region.name == "Corona Mountain":
         new_location = SmsLocation(world.player, "Corona Mountain - Father and Son Shine!", None, new_region)
-        new_location.access_rule = lambda state: sms_requirements_satisfied(state, Requirements([NozzleType.rocket]),
-                                                                            world)
+        new_location.access_rule = lambda state: sms_requirements_satisfied(state,
+            Requirements([NozzleType.rocket], world.options.corona_mountain_shines.value), world)
         new_region.locations.append(new_location)
 
         event_item = SmsItem("Victory", ItemClassification.progression, None, world.player)
