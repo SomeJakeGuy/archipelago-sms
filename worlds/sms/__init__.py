@@ -81,13 +81,11 @@ class SmsWorld(World):
 
     corona_goal: int
     possible_shines: int
-    blue_coins: int
 
     def __init__(self, multiworld: MultiWorld, player: int):
         super().__init__(multiworld, player)
         self.corona_goal = 50
         self.possible_shines = 0
-        self.blue_coins = 0
 
     def generate_early(self):
         if self.options.starting_nozzle.value == 0:
@@ -113,23 +111,21 @@ class SmsWorld(World):
         if self.options.blue_coin_sanity == "full_shuffle":
             for _ in range(0, self.options.blue_coin_maximum):
                 pool.append((self.create_item("Blue Coin")))
-                self.blue_coins += 1
 
         # Adds the minimum amount required of shines for Corona Mountain access
         for _ in range(0, self.options.corona_mountain_shines):
             pool.append(self.create_item("Shine Sprite"))
-            self.possible_shines += 1
 
         extra_shines = math.floor(self.options.corona_mountain_shines * 0.30)
         # Adds extra shines to the pool if possible
         if (len(self.multiworld.get_unfilled_locations(self.player))) > 0:
-            for i in range(0, len(self.multiworld.get_unfilled_locations(self.player)) - self.blue_coins - self.possible_shines - extra_shines):
+            for i in range(0, len(self.multiworld.get_unfilled_locations(self.player)) - len(pool)):
                 if i <= extra_shines:
                     pool.append(self.create_item("Shine Sprite"))
-                    self.possible_shines += 1
                 else:
                     pool.append(self.create_item(self.random.choice(list(JUNK_ITEMS.keys()))))
 
+        self.possible_shines = len([pitem for pitem in pool if pitem.name == "Shine Sprite"])
         self.multiworld.itempool += pool
 
     def create_item(self, name: str):
