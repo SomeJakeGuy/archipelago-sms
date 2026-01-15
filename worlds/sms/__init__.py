@@ -80,13 +80,8 @@ class SmsWorld(World):
 
     settings: ClassVar[SuperMarioSunshineSettings]
 
-    corona_goal: int
-    possible_shines: int
-
     def __init__(self, multiworld: MultiWorld, player: int):
         super().__init__(multiworld, player)
-        self.corona_goal = 50
-        self.possible_shines = 0
 
     def generate_early(self):
         if self.options.starting_nozzle.value == 0:
@@ -114,8 +109,8 @@ class SmsWorld(World):
                 pool.append((self.create_item("Blue Coin")))
 
         # Adds the minimum amount required of shines for Corona Mountain access
-        max_shrines_to_add: int = min(self.options.corona_mountain_shines.value, len(self.multiworld.get_unfilled_locations(self.player)) - len(pool))
-        for _ in range(0, max_shrines_to_add):
+        self.options.corona_mountain_shines.value = min(self.options.corona_mountain_shines.value, len(self.multiworld.get_unfilled_locations(self.player)) - len(pool))
+        for _ in range(0, self.options.corona_mountain_shines.value):
             pool.append(self.create_item("Shine Sprite"))
 
         extra_shines = math.floor(self.options.corona_mountain_shines * 0.30)
@@ -126,7 +121,6 @@ class SmsWorld(World):
             else:
                 pool.append(self.create_item(self.random.choice(list(JUNK_ITEMS.keys()))))
 
-        self.possible_shines = len([pitem for pitem in pool if pitem.name == "Shine Sprite"])
         self.multiworld.itempool += pool
 
     def create_item(self, name: str):
@@ -142,7 +136,6 @@ class SmsWorld(World):
 
     def set_rules(self):
         self.multiworld.completion_condition[self.player] = lambda state: state.has("Victory", self.player)
-        self.corona_goal = min(self.options.corona_mountain_shines.value, self.possible_shines)
 
     def fill_slot_data(self) -> Dict[str, Any]:
         return {
