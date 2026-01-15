@@ -18,6 +18,7 @@ from .locations import ALL_LOCATIONS_TABLE
 from .options import *
 from .regions import create_regions
 from .iso_helper.sms_rom import SMSPlayerContainer
+from ..ror2.items import classification
 
 
 def run_client(*args):
@@ -113,7 +114,8 @@ class SmsWorld(World):
                 pool.append((self.create_item("Blue Coin")))
 
         # Adds the minimum amount required of shines for Corona Mountain access
-        for _ in range(0, self.options.corona_mountain_shines):
+        max_shrines_to_add: int = min(self.options.corona_mountain_shines.value, len(self.multiworld.get_unfilled_locations(self.player)) - len(pool))
+        for _ in range(0, max_shrines_to_add):
             pool.append(self.create_item("Shine Sprite"))
 
         extra_shines = math.floor(self.options.corona_mountain_shines * 0.30)
@@ -128,7 +130,10 @@ class SmsWorld(World):
         self.multiworld.itempool += pool
 
     def create_item(self, name: str):
-        if name in ALL_PROGRESSION_ITEMS:
+        if not name in ALL_ITEMS_TABLE:
+            raise Exception(f"Invalid item name: {name}")
+
+        if name in ALL_PROGRESSION_ITEMS.items():
             classification = ItemClassification.progression
         else:
             classification = ItemClassification.filler
