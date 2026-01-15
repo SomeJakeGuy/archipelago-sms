@@ -3,8 +3,8 @@ Archipelago init file for Super Mario Sunshine
 """
 import math
 from dataclasses import fields
+import os, logging
 from typing import Dict, Any, ClassVar
-import os
 import settings
 
 
@@ -18,7 +18,8 @@ from .locations import ALL_LOCATIONS_TABLE
 from .options import *
 from .regions import create_regions
 from .iso_helper.sms_rom import SMSPlayerContainer
-from ..ror2.items import classification
+
+logger = logging.getLogger()
 
 
 def run_client(*args):
@@ -52,7 +53,7 @@ class SmsWebWorld(WebWorld):
 
     setup = Tutorial(
         "Multiworld Setup Guide",
-        "A guide to setting up the Archipelago Minecraft software on your computer. This guide covers"
+        "A guide to setting up the Archipelago Super Mario Sunshine software on your computer. This guide covers"
         "single-player, multiworld, and related software.",
         "English",
         "setup_en.md",
@@ -113,13 +114,21 @@ class SmsWorld(World):
         for _ in range(0, self.options.corona_mountain_shines.value):
             pool.append(self.create_item("Shine Sprite"))
 
-        extra_shines = math.floor(self.options.corona_mountain_shines.value * 0.30)
-        # Adds extra shines to the pool if possible (will not run if no locations are unfilled)
-        for i in range(0, len(self.multiworld.get_unfilled_locations(self.player)) - len(pool)):
-            if i <= extra_shines:
-                pool.append(self.create_item("Shine Sprite"))
-            else:
-                pool.append(self.create_item(self.random.choice(list(JUNK_ITEMS.keys()))))
+        extra_shines = math.floor(self.options.corona_mountain_shines * self.options.extra_shines * .01)
+
+        # Adjusts Extra shines to be minimum amount of locations left if there would be too many
+        if extra_shines > len(self.multiworld.get_unfilled_locations(self.player)) - len(pool):
+            extra_shines = len(self.multiworld.get_unfilled_locations(self.player)) - len(pool)
+            logger.info(f"Too many extra shines added, lowered amount to {extra_shines}")
+
+        # Adds extra shines to the pool if possible
+        if (len(self.multiworld.get_unfilled_locations(self.player))) > len(pool):
+            for i in range(0, len(self.multiworld.get_unfilled_locations(self.player)) - len(pool)):
+                if i < extra_shines:
+                    pool.append(self.create_item("Shine Sprite"))
+                    self.possible_shines += 1
+                else:
+                    pool.append(self.create_item(self.random.choice(list(JUNK_ITEMS.keys()))))
 
         self.multiworld.itempool += pool
 
